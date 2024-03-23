@@ -61,7 +61,7 @@ const SignIn = ({ children }: { children: React.ReactNode }) => {
           <CardContent>
             <div className="w-[400px] h-[400px]">
               <Image
-                src="/fun.png"
+                src="/fun.jpg"
                 width={500}
                 height={500}
                 alt="streamers grid image"
