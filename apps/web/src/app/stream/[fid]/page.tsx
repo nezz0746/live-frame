@@ -4,10 +4,18 @@ import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { baseURL } from "@lib/variables";
 import { TvIcon } from "lucide-react";
 import { neynar } from "src/app/api/neynar";
+import { fetchMetadata } from "frames.js/next";
 
 type StreamerPageProps = {
   params: { fid: string };
 };
+
+export async function generateMetadata({ params }: StreamerPageProps) {
+  return {
+    title: "Streamer Page",
+    other: { ...(await fetchMetadata(baseURL + "/frames?fid=" + params.fid)) },
+  };
+}
 
 const PageWithStreamPlayer = async ({ params: { fid } }: StreamerPageProps) => {
   const playback = await fetch(baseURL + "/api/stream/playback/" + fid).then(
@@ -18,20 +26,22 @@ const PageWithStreamPlayer = async ({ params: { fid } }: StreamerPageProps) => {
     .then((res) => res.users[0]);
 
   return (
-    <div className="gap-2 flex flex-col">
-      {farcasterUser && (
-        <Alert>
-          <TvIcon className="h-4 w-4" />
-          <AlertTitle>Thank for tuning in!</AlertTitle>
-          <AlertDescription>
-            You're currently watching{" "}
-            <ColorfulText element="span" text={farcasterUser.display_name} />
-            's stream.
-          </AlertDescription>
-        </Alert>
-      )}
-      {playback && <DemoPlayer playback={playback} />}
-    </div>
+    <>
+      <div className="gap-2 flex flex-col">
+        {farcasterUser && (
+          <Alert>
+            <TvIcon className="h-4 w-4" />
+            <AlertTitle>Thank for tuning in!</AlertTitle>
+            <AlertDescription>
+              You're currently watching{" "}
+              <ColorfulText element="span" text={farcasterUser.display_name} />
+              's stream.
+            </AlertDescription>
+          </Alert>
+        )}
+        {playback && <DemoPlayer playback={playback} />}
+      </div>
+    </>
   );
 };
 
