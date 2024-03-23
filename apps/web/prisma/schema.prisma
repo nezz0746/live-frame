@@ -18,7 +18,7 @@ model User {
   id        String   @id @default(cuid()) // use fid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  streams   Stream[]
+  stream    Stream?
 }
 
 model Stream {
@@ -26,6 +26,6 @@ model Stream {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   key       String   @unique
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
 }
