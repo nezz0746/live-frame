@@ -16,13 +16,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
     .create(streamData)
     .then((res) => JSON.parse(res.rawResponse?.data.toString()))) as Stream;
 
-  if (!stream.streamKey) {
+  if (!stream.streamKey || !stream.playbackId) {
     throw new Error("Stream key not found");
   }
 
   const stream_response = await prisma.stream.create({
     data: {
       key: stream.streamKey,
+      playbackId: stream.playbackId,
       userId,
     },
   });

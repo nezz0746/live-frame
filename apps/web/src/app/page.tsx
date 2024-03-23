@@ -4,6 +4,7 @@ import LivepeerBroadcast from "@components/Broadcast";
 import { Button } from "@components/ui/button";
 import { Card, CardContent } from "@components/ui/card";
 import { Input } from "@components/ui/input";
+import { Separator } from "@components/ui/separator";
 import { User } from "@lib/types";
 import { baseURL } from "@lib/variables";
 import { usePrivy } from "@privy-io/react-auth";
@@ -53,6 +54,8 @@ export default function Page(): JSX.Element {
         <CardContent className="flex flex-row h-full">
           <div className="p-4 w-1/5">
             <p className="text-2xl font-semibold">Studio</p>
+            <Separator className="my-4" />
+            <p>Stream key: {data?.stream?.key}</p>
           </div>
           <div className="w-full h-full">
             {isLoading ? (
