@@ -10,8 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@components/ui/card";
-import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
+import { PrivyProvider, useLogin, usePrivy } from "@privy-io/react-auth";
 import Image from "next/image";
+import {
+  useMutation,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -31,13 +38,30 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
         },
       }}
     >
-      <SignIn>{children}</SignIn>
+      <QueryClientProvider client={queryClient}>
+        <SignIn>{children}</SignIn>
+      </QueryClientProvider>
     </PrivyProvider>
   );
 };
 
 const SignIn = ({ children }: { children: React.ReactNode }) => {
-  const { ready, authenticated, login } = usePrivy();
+  const { ready, authenticated } = usePrivy();
+  const { mutate: createUser } = useMutation({
+    mutationKey: ["createUser"],
+    mutationFn: async (fid: string) =>
+      fetch("/api/user/create", {
+        method: "POST",
+        body: JSON.stringify({ fid }),
+      }),
+  });
+  const { login } = useLogin({
+    onComplete: (user, isNewUser) => {
+      if (isNewUser) {
+        if (user?.farcaster?.fid) createUser(user?.farcaster?.fid.toString());
+      }
+    },
+  });
 
   if (!ready) {
     // Do nothing while the PrivyProvider initializes with updated user state
