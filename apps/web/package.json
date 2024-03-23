@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@livepeer/react": "^4.1.11",
+    "@neynar/nodejs-sdk": "^1.13.1",
     "@prisma/client": "^5.11.0",
     "@privy-io/react-auth": "^1.59.5",
     "@radix-ui/react-alert-dialog": "^1.0.5",
