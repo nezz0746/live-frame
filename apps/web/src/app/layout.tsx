@@ -19,8 +19,8 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body className={(inter.className, " min-h-screen")}>
-        <div className="p-4">
+      <body className={(inter.className, "h-screen")}>
+        <div className="p-4 h-full">
           <Providers>
             <Navigation />
             <Separator className="my-4" />
