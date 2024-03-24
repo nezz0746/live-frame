@@ -1,0 +1,143 @@
+diff --git a/node_modules/@coinbase/onchainkit/esm/frame/getFrameHtmlResponse.js b/node_modules/@coinbase/onchainkit/esm/frame/getFrameHtmlResponse.js
+index fa51b63..e79fcc4 100644
+--- a/node_modules/@coinbase/onchainkit/esm/frame/getFrameHtmlResponse.js
++++ b/node_modules/@coinbase/onchainkit/esm/frame/getFrameHtmlResponse.js
+@@ -14,6 +14,7 @@
+ function getFrameHtmlResponse({
+   buttons,
+   image,
++  video,
+   input,
+   ogDescription,
+   ogTitle,
+@@ -26,6 +27,8 @@ function getFrameHtmlResponse({
+   const imgSrc = typeof image === 'string' ? image : image.src;
+   const ogImageHtml = `  <meta property="og:image" content="${imgSrc}" />\n`;
+   let imageHtml = `  <meta property="fc:frame:image" content="${imgSrc}" />\n`;
++  console.log('video', video);
++  let videoHtml = video ? `  <meta property="fc:frame:video" content="${video?.src}" />\n<meta property="fc:frame:video:type" content="${video?.type}" />\n` : "";
+   if (typeof image !== 'string' && image.aspectRatio) {
+     imageHtml += `  <meta property="fc:frame:image:aspect_ratio" content="${image.aspectRatio}" />\n`;
+   }
+@@ -69,7 +72,7 @@ function getFrameHtmlResponse({
+   <meta property="og:description" content="${ogDescription || 'Frame description'}" />
+   <meta property="og:title" content="${ogTitle || 'Frame title'}" />
+   <meta property="fc:frame" content="vNext" />
+-${buttonsHtml}${ogImageHtml}${imageHtml}${inputHtml}${postUrlHtml}${refreshPeriodHtml}${stateHtml}
++${buttonsHtml}${ogImageHtml}${imageHtml}${videoHtml}${inputHtml}${postUrlHtml}${refreshPeriodHtml}${stateHtml}
+ </head>
+ </html>`;
+   return html;
+diff --git a/node_modules/@coinbase/onchainkit/esm/frame/types.d.ts b/node_modules/@coinbase/onchainkit/esm/frame/types.d.ts
+index 47329a1..929b449 100644
+--- a/node_modules/@coinbase/onchainkit/esm/frame/types.d.ts
++++ b/node_modules/@coinbase/onchainkit/esm/frame/types.d.ts
+@@ -120,6 +120,10 @@ export type FrameMetadataType = {
+     buttons?: [FrameButtonMetadata, ...FrameButtonMetadata[]];
+     image: string | FrameImageMetadata;
+     input?: FrameInputMetadata;
++    video?: {
++        src: string;
++        type: "video/hls" | "video/mp4"
++      }
+     /** @deprecated Prefer `postUrl` */
+     post_url?: string;
+     postUrl?: string;
+diff --git a/node_modules/@coinbase/onchainkit/lib/frame/getFrameHtmlResponse.js b/node_modules/@coinbase/onchainkit/lib/frame/getFrameHtmlResponse.js
+index 449b5e9..6faef4d 100644
+--- a/node_modules/@coinbase/onchainkit/lib/frame/getFrameHtmlResponse.js
++++ b/node_modules/@coinbase/onchainkit/lib/frame/getFrameHtmlResponse.js
+@@ -16,6 +16,7 @@
+ function getFrameHtmlResponse({
+   buttons,
+   image,
++  video,
+   input,
+   ogDescription,
+   ogTitle,
+@@ -28,6 +29,8 @@ function getFrameHtmlResponse({
+   const imgSrc = typeof image === 'string' ? image : image.src;
+   const ogImageHtml = `  <meta property="og:image" content="${imgSrc}" />\n`;
+   let imageHtml = `  <meta property="fc:frame:image" content="${imgSrc}" />\n`;
++  console.log('video', video);
++  let videoHtml = video ? `  <meta property="fc:frame:video" content="${video?.src}" />\n<meta property="fc:frame:video:type" content="${video?.type}" />\n` : "";
+   if (typeof image !== 'string' && image.aspectRatio) {
+     imageHtml += `  <meta property="fc:frame:image:aspect_ratio" content="${image.aspectRatio}" />\n`;
+   }
+@@ -71,7 +74,7 @@ function getFrameHtmlResponse({
+   <meta property="og:description" content="${ogDescription || 'Frame description'}" />
+   <meta property="og:title" content="${ogTitle || 'Frame title'}" />
+   <meta property="fc:frame" content="vNext" />
+-${buttonsHtml}${ogImageHtml}${imageHtml}${inputHtml}${postUrlHtml}${refreshPeriodHtml}${stateHtml}
++${buttonsHtml}${ogImageHtml}${imageHtml}${videoHtml}${inputHtml}${postUrlHtml}${refreshPeriodHtml}${stateHtml}
+ </head>
+ </html>`;
+   return html;
+diff --git a/node_modules/@coinbase/onchainkit/lib/frame/types.d.ts b/node_modules/@coinbase/onchainkit/lib/frame/types.d.ts
+index 47329a1..464391c 100644
+--- a/node_modules/@coinbase/onchainkit/lib/frame/types.d.ts
++++ b/node_modules/@coinbase/onchainkit/lib/frame/types.d.ts
+@@ -119,6 +119,10 @@ export type FrameMetadataReact = FrameMetadataType & {
+ export type FrameMetadataType = {
+     buttons?: [FrameButtonMetadata, ...FrameButtonMetadata[]];
+     image: string | FrameImageMetadata;
++    video?: {
++        src: string;
++        type: "video/hls" | "video/mp4"
++      }
+     input?: FrameInputMetadata;
+     /** @deprecated Prefer `postUrl` */
+     post_url?: string;
+diff --git a/node_modules/@coinbase/onchainkit/src/frame/getFrameHtmlResponse.ts b/node_modules/@coinbase/onchainkit/src/frame/getFrameHtmlResponse.ts
+index 09b0b3a..8f31c39 100644
+--- a/node_modules/@coinbase/onchainkit/src/frame/getFrameHtmlResponse.ts
++++ b/node_modules/@coinbase/onchainkit/src/frame/getFrameHtmlResponse.ts
+@@ -10,6 +10,7 @@ type FrameMetadataHTMLResponse = FrameMetadataType & {
+  *
+  * @param buttons: The buttons to use for the frame.
+  * @param image: The image to use for the frame.
++ * @param video: The video to use for the frame.
+  * @param input: The text input to use for the frame.
+  * @param ogDescription: The Open Graph description for the frame.
+  * @param ogTitle: The Open Graph title for the frame.
+@@ -22,6 +23,7 @@ function getFrameHtmlResponse({
+   buttons,
+   image,
+   input,
++  video,
+   ogDescription,
+   ogTitle,
+   postUrl,
+@@ -33,6 +35,8 @@ function getFrameHtmlResponse({
+   const imgSrc = typeof image === 'string' ? image : image.src;
+   const ogImageHtml = `  <meta property="og:image" content="${imgSrc}" />\n`;
+   let imageHtml = `  <meta property="fc:frame:image" content="${imgSrc}" />\n`;
++  console.log('video', video);
++  let videoHtml = video ? `  <meta property="fc:frame:video" content="${video?.src}" />\n<meta property="fc:frame:video:type" content="${video?.type}" />\n` : "";
+   if (typeof image !== 'string' && image.aspectRatio) {
+     imageHtml += `  <meta property="fc:frame:image:aspect_ratio" content="${image.aspectRatio}" />\n`;
+   }
+@@ -86,7 +90,7 @@ function getFrameHtmlResponse({
+   <meta property="og:description" content="${ogDescription || 'Frame description'}" />
+   <meta property="og:title" content="${ogTitle || 'Frame title'}" />
+   <meta property="fc:frame" content="vNext" />
+-${buttonsHtml}${ogImageHtml}${imageHtml}${inputHtml}${postUrlHtml}${refreshPeriodHtml}${stateHtml}
++${buttonsHtml}${ogImageHtml}${imageHtml}${videoHtml}${inputHtml}${postUrlHtml}${refreshPeriodHtml}${stateHtml}
+ </head>
+ </html>`;
+ 
+diff --git a/node_modules/@coinbase/onchainkit/src/frame/types.ts b/node_modules/@coinbase/onchainkit/src/frame/types.ts
+index 8541bc6..126e359 100644
+--- a/node_modules/@coinbase/onchainkit/src/frame/types.ts
++++ b/node_modules/@coinbase/onchainkit/src/frame/types.ts
+@@ -129,6 +129,10 @@ export type FrameMetadataReact = FrameMetadataType & {
+ export type FrameMetadataType = {
+   buttons?: [FrameButtonMetadata, ...FrameButtonMetadata[]]; // A list of strings which are the label for the buttons in the frame (max 4 buttons).
+   image: string | FrameImageMetadata; // An image which must be smaller than 10MB and should have an aspect ratio of 1.91:1
++  video?: {
++    src: string;
++    type: "video/hls" | "video/mp4"
++  }
+   input?: FrameInputMetadata; // The text input to use for the Frame.
+   /** @deprecated Prefer `postUrl` */
+   post_url?: string;
