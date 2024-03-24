@@ -2,4 +2,7 @@
 
 # AlwaysOn
 
+LINK TO ONCHAINKIT FORK with **video frame client**:
+[LINK](https://github.com/nezz0746/onchainkit)
+
 ETHGloabl Frameworks hackathon
