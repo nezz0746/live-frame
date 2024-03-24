@@ -39,8 +39,8 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     buttons: [
       {
         label: "Yoink !",
-        action: "post",
-        target: baseURL + "/api/frame",
+        action: "tx",
+        target: baseURL + "/api/frame/tx",
       },
       {
         label: "Link",
