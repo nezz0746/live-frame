@@ -8,7 +8,7 @@
     "clean": "turbo clean",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "prepare": "husky",
-    "postinstall": "npx patch-package"
+    "postinstall": "npx patch-package && prisma generate"
   },
   "devDependencies": {
     "@repo/typescript-config": "*",
